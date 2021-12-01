@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1ldldhx" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.1" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="1.1.0">
+  <bpmn:collaboration id="Collaboration_164otvr">
+    <bpmn:documentation>Mandar correo</bpmn:documentation>
+    <bpmn:participant id="Participant_hospital" name="Hospital" processRef="hospital_process" />
+  </bpmn:collaboration>
+  <bpmn:process id="hospital_process" name="hospital_process" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_15bbpx9</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="notify_patient_comes_activity" name="Notifica a servicios que ha llegado paciente">
+      <bpmn:documentation>Mandar correo - serv</bpmn:documentation>
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="notify_patient_comes_activity" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_15bbpx9</bpmn:incoming>
+      <bpmn:outgoing>Flow_1497raj</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:intermediateCatchEvent id="confirm_ingreess_message" name="Servicios confirman ingreso">
+      <bpmn:incoming>Flow_1497raj</bpmn:incoming>
+      <bpmn:outgoing>Flow_1nmzf82</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1j8oinl" messageRef="Message_097eup9" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:serviceTask id="change_patient_initial_activity" name="Cambia situación sobre paciente">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="change_patient_initial_activity" retries="3" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1nmzf82</bpmn:incoming>
+      <bpmn:outgoing>Flow_0d4avrp</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:intermediateCatchEvent id="patien_info_message" name="Servicios envían información sobre paciente">
+      <bpmn:incoming>Flow_0o3qv2n</bpmn:incoming>
+      <bpmn:outgoing>Flow_14hojxo</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1s0w6ci" messageRef="Message_315fgh3" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:serviceTask id="notify_private_insurance" name="Notificar a entidad de seguros particulares">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="notify_private_insurance" retries="3" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_14hojxo</bpmn:incoming>
+      <bpmn:outgoing>Flow_0gap6za</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:intermediateCatchEvent id="take_signals_patient_activity" name="Clínica toma de signos al paciente">
+      <bpmn:incoming>Flow_0gap6za</bpmn:incoming>
+      <bpmn:outgoing>Flow_0h80snm</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0tgqquv" messageRef="Message_0j12n6i" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:serviceTask id="notify_doctor_activity" name="Notificación al médico encargado">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="notify_doctor_activity" retries="3" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1p3w8gz</bpmn:incoming>
+      <bpmn:outgoing>Flow_0r9me3j</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="lab_studies_activity" name="Realización de estudios">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="lab_studies_activity" retries="3" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0r9me3j</bpmn:incoming>
+      <bpmn:outgoing>Flow_1imyhgh</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:intermediateCatchEvent id="lab_results_message" name="Recepción de resultados">
+      <bpmn:incoming>Flow_1imyhgh</bpmn:incoming>
+      <bpmn:outgoing>Flow_0fgwymz</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0hnozx3" messageRef="Message_3g3tsfv" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:serviceTask id="results_register_activity" name="Registro de resultados">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="results_register_activity" retries="3" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0fgwymz</bpmn:incoming>
+      <bpmn:outgoing>Flow_179m45y</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:intermediateCatchEvent id="discharge_medical_message" name="Espera por la alta médica">
+      <bpmn:incoming>Flow_179m45y</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ijb8sd</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0nnsz2h" messageRef="Message_1v86kgc" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:endEvent id="Event_00hv17k">
+      <bpmn:incoming>Flow_1yx23rc</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="notify_insurance_activity" name="Se notifica que es necesario el seguro médco">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="notify_insure_activity" retries="3" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0d4avrp</bpmn:incoming>
+      <bpmn:outgoing>Flow_0o3qv2n</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="assign_bed_activity" name="Asignación de cama según gravedad">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="assign_bed_activity" retries="3" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0h80snm</bpmn:incoming>
+      <bpmn:outgoing>Flow_1p3w8gz</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="notify_discharge_activity" name="Notificación de alta médica">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="notify_discharge_activity" retries="3" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1ijb8sd</bpmn:incoming>
+      <bpmn:outgoing>Flow_1yx23rc</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_15bbpx9" sourceRef="StartEvent_1" targetRef="notify_patient_comes_activity" />
+    <bpmn:sequenceFlow id="Flow_1497raj" sourceRef="notify_patient_comes_activity" targetRef="confirm_ingreess_message" />
+    <bpmn:sequenceFlow id="Flow_1nmzf82" sourceRef="confirm_ingreess_message" targetRef="change_patient_initial_activity" />
+    <bpmn:sequenceFlow id="Flow_0d4avrp" sourceRef="change_patient_initial_activity" targetRef="notify_insurance_activity" />
+    <bpmn:sequenceFlow id="Flow_0o3qv2n" sourceRef="notify_insurance_activity" targetRef="patien_info_message" />
+    <bpmn:sequenceFlow id="Flow_0gap6za" sourceRef="notify_private_insurance" targetRef="take_signals_patient_activity" />
+    <bpmn:sequenceFlow id="Flow_0h80snm" sourceRef="take_signals_patient_activity" targetRef="assign_bed_activity" />
+    <bpmn:sequenceFlow id="Flow_1p3w8gz" sourceRef="assign_bed_activity" targetRef="notify_doctor_activity" />
+    <bpmn:sequenceFlow id="Flow_0r9me3j" sourceRef="notify_doctor_activity" targetRef="lab_studies_activity" />
+    <bpmn:sequenceFlow id="Flow_1imyhgh" sourceRef="lab_studies_activity" targetRef="lab_results_message" />
+    <bpmn:sequenceFlow id="Flow_0fgwymz" sourceRef="lab_results_message" targetRef="results_register_activity" />
+    <bpmn:sequenceFlow id="Flow_179m45y" sourceRef="results_register_activity" targetRef="discharge_medical_message" />
+    <bpmn:sequenceFlow id="Flow_1ijb8sd" sourceRef="discharge_medical_message" targetRef="notify_discharge_activity" />
+    <bpmn:sequenceFlow id="Flow_1yx23rc" sourceRef="notify_discharge_activity" targetRef="Event_00hv17k" />
+    <bpmn:sequenceFlow id="Flow_14hojxo" sourceRef="patien_info_message" targetRef="notify_private_insurance" />
+  </bpmn:process>
+  <bpmn:message id="Message_097eup9" name="confirm_ingreess_message">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="=workflow_id" />
+    </bpmn:extensionElements>
+  </bpmn:message>
+  <bpmn:message id="Message_315fgh3" name="patien_info_message">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="=workflow_id" />
+    </bpmn:extensionElements>
+  </bpmn:message>
+  <bpmn:message id="Message_0j12n6i" name="take_signals_patient_activity">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="=workflow_id" />
+    </bpmn:extensionElements>
+  </bpmn:message>
+  <bpmn:message id="Message_3g3tsfv" name="lab_results_message">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="=workflow_id" />
+    </bpmn:extensionElements>
+  </bpmn:message>
+  <bpmn:message id="Message_1v86kgc" name="discharge_medical_message">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="=workflow_id" />
+    </bpmn:extensionElements>
+  </bpmn:message>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_164otvr">
+      <bpmndi:BPMNShape id="Participant_02rhol1_di" bpmnElement="Participant_hospital" isHorizontal="true">
+        <dc:Bounds x="120" y="80" width="2590" height="710" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_15bbpx9_di" bpmnElement="Flow_15bbpx9">
+        <di:waypoint x="215" y="317" />
+        <di:waypoint x="430" y="317" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1497raj_di" bpmnElement="Flow_1497raj">
+        <di:waypoint x="530" y="317" />
+        <di:waypoint x="592" y="317" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1nmzf82_di" bpmnElement="Flow_1nmzf82">
+        <di:waypoint x="628" y="317" />
+        <di:waypoint x="690" y="317" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0d4avrp_di" bpmnElement="Flow_0d4avrp">
+        <di:waypoint x="790" y="317" />
+        <di:waypoint x="860" y="317" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0o3qv2n_di" bpmnElement="Flow_0o3qv2n">
+        <di:waypoint x="960" y="317" />
+        <di:waypoint x="1032" y="317" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0gap6za_di" bpmnElement="Flow_0gap6za">
+        <di:waypoint x="1380" y="317" />
+        <di:waypoint x="1652" y="317" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0h80snm_di" bpmnElement="Flow_0h80snm">
+        <di:waypoint x="1688" y="317" />
+        <di:waypoint x="1770" y="317" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1p3w8gz_di" bpmnElement="Flow_1p3w8gz">
+        <di:waypoint x="1870" y="317" />
+        <di:waypoint x="2190" y="317" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0r9me3j_di" bpmnElement="Flow_0r9me3j">
+        <di:waypoint x="2290" y="317" />
+        <di:waypoint x="2400" y="317" />
+        <di:waypoint x="2400" y="480" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1imyhgh_di" bpmnElement="Flow_1imyhgh">
+        <di:waypoint x="2350" y="520" />
+        <di:waypoint x="2228" y="520" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2272" y="373" width="68" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0fgwymz_di" bpmnElement="Flow_0fgwymz">
+        <di:waypoint x="2192" y="520" />
+        <di:waypoint x="2120" y="520" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_179m45y_di" bpmnElement="Flow_179m45y">
+        <di:waypoint x="2020" y="520" />
+        <di:waypoint x="1948" y="520" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ijb8sd_di" bpmnElement="Flow_1ijb8sd">
+        <di:waypoint x="1912" y="520" />
+        <di:waypoint x="1840" y="520" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1yx23rc_di" bpmnElement="Flow_1yx23rc">
+        <di:waypoint x="1740" y="520" />
+        <di:waypoint x="1618" y="520" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14hojxo_di" bpmnElement="Flow_14hojxo">
+        <di:waypoint x="1068" y="317" />
+        <di:waypoint x="1280" y="317" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="299" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1lnpfvk_di" bpmnElement="notify_patient_comes_activity">
+        <dc:Bounds x="430" y="277" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1bl487s_di" bpmnElement="confirm_ingreess_message">
+        <dc:Bounds x="592" y="299" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="569" y="342" width="88" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0v606l3_di" bpmnElement="change_patient_initial_activity">
+        <dc:Bounds x="690" y="277" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_151ro8v_di" bpmnElement="patien_info_message">
+        <dc:Bounds x="1032" y="299" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1008" y="342" width="88" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1rms2vm_di" bpmnElement="notify_private_insurance">
+        <dc:Bounds x="1280" y="277" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1s5av09_di" bpmnElement="take_signals_patient_activity">
+        <dc:Bounds x="1652" y="299" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1628" y="342" width="89" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0x1i3j3_di" bpmnElement="notify_doctor_activity">
+        <dc:Bounds x="2190" y="277" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1e2wq9q_di" bpmnElement="lab_studies_activity">
+        <dc:Bounds x="2350" y="480" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0fecmvw_di" bpmnElement="lab_results_message">
+        <dc:Bounds x="2192" y="502" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2178" y="545" width="68" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1hiqqmk_di" bpmnElement="results_register_activity">
+        <dc:Bounds x="2020" y="480" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0osb02s_di" bpmnElement="discharge_medical_message">
+        <dc:Bounds x="1912" y="502" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1886" y="465" width="87" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_00hv17k_di" bpmnElement="Event_00hv17k">
+        <dc:Bounds x="1582" y="502" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0hj490e_di" bpmnElement="notify_insurance_activity">
+        <dc:Bounds x="860" y="277" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1d5d1xd_di" bpmnElement="assign_bed_activity">
+        <dc:Bounds x="1770" y="277" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_13ng5ci_di" bpmnElement="notify_discharge_activity">
+        <dc:Bounds x="1740" y="480" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
